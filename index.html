@@ -5,43 +5,59 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BlockShelf Library</title>
 <link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<nav class="navbar">
-<h1>📚 BlockShelf</h1>
-<button class="toggle" onclick="toggleTheme()">🌙</button>
-</nav>
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">📚</span>
+      <span class="logo-text">BlockShelf</span>
+    </a>
+    <nav class="header-actions">
+      <a href="index.html" class="header-link">Home</a>
+      <button type="button" class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <span class="theme-icon" id="themeIcon">🌙</span>
+      </button>
+    </nav>
+  </div>
+</header>
 
-<section class="hero">
-<h2>Welcome to BlockShelf</h2>
-<p>A Minecraft‑inspired modern digital library system.</p>
-</section>
+<main class="main">
+  <section class="hero">
+    <h1 class="hero-title">Welcome to BlockShelf</h1>
+    <p class="hero-subtitle">A Minecraft-inspired modern digital library system.</p>
+  </section>
 
-<section class="nav-cards">
-<a href="login.html" class="nav-card">
-<h3>🔐 Login</h3>
-<p>Access your library account</p>
-</a>
+  <section class="nav-cards">
+    <a href="login.html" class="nav-card">
+      <span class="nav-card-icon">🔐</span>
+      <h3 class="nav-card-title">Login</h3>
+      <p class="nav-card-desc">Access your library account</p>
+    </a>
+    <a href="signup.html" class="nav-card">
+      <span class="nav-card-icon">📝</span>
+      <h3 class="nav-card-title">Signup</h3>
+      <p class="nav-card-desc">Create a new reader profile</p>
+    </a>
+    <a href="reset.html" class="nav-card">
+      <span class="nav-card-icon">♻</span>
+      <h3 class="nav-card-title">Reset Password</h3>
+      <p class="nav-card-desc">Recover your account safely</p>
+    </a>
+    <a href="books.html" class="nav-card nav-card-featured">
+      <span class="nav-card-icon">📚</span>
+      <h3 class="nav-card-title">Explore Library</h3>
+      <p class="nav-card-desc">Manage and organize books</p>
+    </a>
+  </section>
+</main>
 
-<a href="signup.html" class="nav-card">
-<h3>📝 Signup</h3>
-<p>Create a new reader profile</p>
-</a>
-
-<a href="reset.html" class="nav-card">
-<h3>♻ Reset Password</h3>
-<p>Recover your account safely</p>
-</a>
-
-<a href="books.html" class="nav-card featured">
-<h3>📚 Explore Library</h3>
-<p>Manage and organize books</p>
-</a>
-</section>
-
-<footer>
-<p>BlockShelf Library • Frontend Project</p>
+<footer class="footer">
+  <p>BlockShelf Library • Frontend Project</p>
 </footer>
 
 <script src="script.js"></script>

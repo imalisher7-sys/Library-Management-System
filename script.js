@@ -1,4 +1,12 @@
 function showToast(msg){
+const el=document.getElementById("toast");
+if(el){el.textContent=msg;el.style.display="block";setTimeout(()=>el.style.display="none",2000);}
+}
+
+function toggleTheme(){
+  document.body.classList.toggle("light-theme");
+  const icon=document.getElementById("themeIcon");
+  if(icon) icon.textContent=document.body.classList.contains("light-theme")?"☀️":"🌙";
 }
 
 function loginAlert(){showToast(" Login ");}
@@ -9,13 +17,13 @@ let books=[];
 let editIndex=null;
 
 function loadBooks(){
-books=JSON.parse(localStorage.getItem(" Books "))||[];
+books=JSON.parse(localStorage.getItem("books"))||[];
 renderBooks(books);
 }
 
 function addBook(){
-const title=document.getElementById(" BookTitle ").value;
-const author=document.getElementById(" BookAuthor ").value;
+const title=document.getElementById("bookTitle").value;
+const author=document.getElementById("bookAuthor").value;
 if(!title||!author) return;
 
 if(editIndex!==null){
@@ -27,11 +35,11 @@ books.push({title,author});
 showToast("Book added");
 }
 
-localStorage.setItem("Books",JSON.stringify(books));
+localStorage.setItem("books",JSON.stringify(books));
 renderBooks(books);
 
-document.getElementById("BookTitle").value="";
-document.getElementById("BookAuthor").value="";
+document.getElementById("bookTitle").value="";
+document.getElementById("bookAuthor").value="";
 }
 
 function renderBooks(list){
@@ -57,15 +65,15 @@ grid.appendChild(div);
 
 function editBook(i){
 const b=books[i];
-document.getElementById("BookTitle").value=b.title;
-document.getElementById("BookAuthor").value=b.author;
+document.getElementById("bookTitle").value=b.title;
+document.getElementById("bookAuthor").value=b.author;
 editIndex=i;
 showToast("Editing book...");
 }
 
 function deleteBook(i){
 books.splice(i,1);
-localStorage.setItem("Books",JSON.stringify(books));
+localStorage.setItem("books",JSON.stringify(books));
 renderBooks(books);
 showToast("Book deleted");
 }
