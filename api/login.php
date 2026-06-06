@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     jsonResponse(['success' => false, 'message' => 'Invalid request method.'], 405);
 }
 
-$data = json_decode(file_get_contents('php://input'), true);
+$data = readJsonBody();
 $email = trim($data['email'] ?? '');
 $password = $data['password'] ?? '';
 
@@ -40,5 +40,5 @@ try {
         'user' => ['name' => $member['Name'], 'email' => $member['Email']],
     ]);
 } catch (PDOException $e) {
-    jsonResponse(['success' => false, 'message' => 'Database error. Import blockshelf_db.sql first.'], 500);
+    jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
 }

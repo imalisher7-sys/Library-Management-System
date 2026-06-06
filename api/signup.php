@@ -2,11 +2,13 @@
 session_start();
 require_once __DIR__ . '/../config.php';
 
+header('Content-Type: application/json');
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     jsonResponse(['success' => false, 'message' => 'Invalid request method.'], 405);
 }
 
-$data = json_decode(file_get_contents('php://input'), true);
+$data = readJsonBody();
 $name = trim($data['full_name'] ?? '');
 $email = trim($data['email'] ?? '');
 $password = $data['password'] ?? '';
@@ -38,8 +40,8 @@ try {
 
     jsonResponse(['success' => true, 'message' => 'Member account created successfully.']);
 } catch (PDOException $e) {
-    if ($e->getCode() == 23000) {
+    if ((string) $e->getCode() === '23000') {
         jsonResponse(['success' => false, 'message' => 'Email already registered.'], 409);
     }
-    jsonResponse(['success' => false, 'message' => 'Database error. Import blockshelf_db.sql first.'], 500);
+    jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
 }
