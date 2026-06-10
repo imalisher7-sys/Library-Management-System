@@ -13,12 +13,12 @@
 
 <header class="header">
   <div class="header-inner">
-    <a href="index.html" class="logo">
+<a href="../index.html" class="logo">
       <span class="logo-icon">📚</span>
       <span class="logo-text">BlockShelf</span>
     </a>
     <nav class="header-actions">
-      <a href="index.html" class="header-link">Home</a>
+<a href="../index.html" class="header-link">Home</a>
       <button type="button" class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
         <span class="theme-icon" id="themeIcon">🌙</span>
       </button>
@@ -33,22 +33,22 @@
   </section>
 
   <section class="nav-cards">
-    <a href="login.html" class="nav-card">
+    <a href="api/login.php" class="nav-card">
       <span class="nav-card-icon">🔐</span>
       <h3 class="nav-card-title">Login</h3>
       <p class="nav-card-desc">Access your library account</p>
     </a>
-    <a href="signup.html" class="nav-card">
+    <a href="api/signup.php" class="nav-card">
       <span class="nav-card-icon">📝</span>
       <h3 class="nav-card-title">Signup</h3>
       <p class="nav-card-desc">Create a new reader profile</p>
     </a>
-    <a href="reset.html" class="nav-card">
+    <a href="api/reset.html" class="nav-card">
       <span class="nav-card-icon">♻</span>
       <h3 class="nav-card-title">Reset Password</h3>
       <p class="nav-card-desc">Recover your account safely</p>
     </a>
-    <a href="books.html" class="nav-card nav-card-featured">
+    <a href="api/books.php" class="nav-card nav-card-featured">
       <span class="nav-card-icon">📚</span>
       <h3 class="nav-card-title">Explore Library</h3>
       <p class="nav-card-desc">Manage and organize books</p>

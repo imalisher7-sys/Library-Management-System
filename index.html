@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BlockShelf Library</title>
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">📚</span>
+      <span class="logo-text">BlockShelf</span>
+    </a>
+    <nav class="header-actions">
+      <a href="index.html" class="header-link">Home</a>
+      <button type="button" class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <span class="theme-icon" id="themeIcon">🌙</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main class="main">
+  <section class="hero">
+    <h1 class="hero-title">Welcome to BlockShelf</h1>
+    <p class="hero-subtitle">Start XAMPP, open the site, and login — members view books, admins manage them.</p>
+  </section>
+
+  <section class="nav-cards">
+    <a href="api/login.php" class="nav-card">
+      <span class="nav-card-icon">🔐</span>
+      <h3 class="nav-card-title">Login</h3>
+      <p class="nav-card-desc">Access your library account</p>
+    </a>
+    <a href="api/signup.php" class="nav-card">
+      <span class="nav-card-icon">📝</span>
+      <h3 class="nav-card-title">Signup</h3>
+      <p class="nav-card-desc">Create a new reader profile</p>
+    </a>
+    <a href="api/reset.html" class="nav-card">
+      <span class="nav-card-icon">♻</span>
+      <h3 class="nav-card-title">Reset Password</h3>
+      <p class="nav-card-desc">Recover your account safely</p>
+    </a>
+    <a href="api/books.php" class="nav-card nav-card-featured">
+      <span class="nav-card-icon">📚</span>
+      <h3 class="nav-card-title">Explore Library</h3>
+      <p class="nav-card-desc">Manage and organize books</p>
+    </a>
+  </section>
+</main>
+
+<footer class="footer">
+  <p>BlockShelf Library • PHP + MySQL via XAMPP</p>
+</footer>
+
+<div id="toast" class="toast"></div>
+<script src="script.js"></script>
+</body>
+</html>
