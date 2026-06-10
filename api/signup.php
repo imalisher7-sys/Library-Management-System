@@ -1,47 +1,67 @@
 <?php
-session_start();
-require_once __DIR__ . '/../config.php';
 
-header('Content-Type: application/json');
+include 'db.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    jsonResponse(['success' => false, 'message' => 'Invalid request method.'], 405);
-}
+if(isset($_POST['signup']))
+{
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
 
-$data = readJsonBody();
-$name = trim($data['full_name'] ?? '');
-$email = trim($data['email'] ?? '');
-$password = $data['password'] ?? '';
-$phone = trim($data['phone'] ?? '');
+    $sql = "INSERT INTO Member
+    (Name, Email, Membership_Date, Membership_Status, Password, Role)
+    VALUES
+    (
+        '$name',
+        '$email',
+        CURDATE(),
+        'Active',
+        '$password',
+        'Member'
+    )";
 
-if ($name === '' || $email === '' || $password === '') {
-    jsonResponse(['success' => false, 'message' => 'Name, email, and password are required.'], 400);
-}
-
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    jsonResponse(['success' => false, 'message' => 'Invalid email address.'], 400);
-}
-
-if (strlen($password) < 6) {
-    jsonResponse(['success' => false, 'message' => 'Password must be at least 6 characters.'], 400);
-}
-
-try {
-    $hash = password_hash($password, PASSWORD_DEFAULT);
-    $stmt = getDB()->prepare(
-        'INSERT INTO member (Name, Email, Phone_No, Password, Membership_Date, Membership_Status)
-         VALUES (?, ?, ?, ?, CURDATE(), ?)'
-    );
-    $stmt->execute([$name, $email, $phone !== '' ? $phone : null, $hash, 'Active']);
-
-    $_SESSION['user_id'] = (int) getDB()->lastInsertId();
-    $_SESSION['user_name'] = $name;
-    $_SESSION['user_email'] = $email;
-
-    jsonResponse(['success' => true, 'message' => 'Member account created successfully.']);
-} catch (PDOException $e) {
-    if ((string) $e->getCode() === '23000') {
-        jsonResponse(['success' => false, 'message' => 'Email already registered.'], 409);
+    if(mysqli_query($conn, $sql))
+    {
+        header("Location: login.php");
+        exit();
     }
-    jsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+    else
+    {
+        echo "Signup Failed";
+    }
 }
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signup</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="center-wrapper">
+
+<div class="card">
+
+<h2>Create Account</h2>
+
+<form method="POST">
+
+<input type="text" name="name" placeholder="Full Name" required>
+
+<input type="email" name="email" placeholder="Email" required>
+
+<input type="password" name="password" placeholder="Password" required>
+
+<button type="submit" name="signup">Signup</button>
+
+</form>
+
+<a class="link" href="index.php">← Back Home</a>
+
+</div>
+
+</body>
+</html>

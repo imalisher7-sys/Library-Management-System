@@ -1,147 +1,124 @@
 <?php
-session_start();
-require_once __DIR__ . '/../config.php';
+include 'db.php';
 
-$method = $_SERVER['REQUEST_METHOD'];
-
-const BOOK_SELECT = '
-    SELECT b.Book_ID, b.Title, b.ISBN, b.Publication_Year,
-           b.Author_ID, b.Category_ID,
-           a.Author_Name, c.Category_Name
-    FROM book b
-    INNER JOIN author a ON b.Author_ID = a.Author_ID
-    INNER JOIN category c ON b.Category_ID = c.Category_ID
-';
-
-try {
-    if ($method === 'GET' && isset($_GET['meta'])) {
-        $authors = getDB()->query('SELECT Author_ID, Author_Name FROM author ORDER BY Author_Name')->fetchAll(PDO::FETCH_ASSOC);
-        $categories = getDB()->query('SELECT Category_ID, Category_Name FROM category ORDER BY Category_Name')->fetchAll(PDO::FETCH_ASSOC);
-        jsonResponse(['success' => true, 'authors' => $authors, 'categories' => $categories]);
-    }
-
-    if ($method === 'GET') {
-        $search = trim($_GET['search'] ?? '');
-        if ($search !== '') {
-            $stmt = getDB()->prepare(
-                BOOK_SELECT . '
-                WHERE b.Title LIKE ? OR a.Author_Name LIKE ? OR c.Category_Name LIKE ? OR b.ISBN LIKE ?
-                ORDER BY b.Title ASC'
-            );
-            $like = '%' . $search . '%';
-            $stmt->execute([$like, $like, $like, $like]);
-        } else {
-            $stmt = getDB()->query(BOOK_SELECT . ' ORDER BY b.Title ASC');
-        }
-
-        $books = array_map('normalizeBook', $stmt->fetchAll(PDO::FETCH_ASSOC));
-        jsonResponse(['success' => true, 'books' => $books]);
-    }
-
-    requireLogin();
-
-    if ($method === 'POST') {
-        $data = json_decode(file_get_contents('php://input'), true);
-        $fields = validateBookInput($data);
-
-        $stmt = getDB()->prepare(
-            'INSERT INTO book (Title, ISBN, Publication_Year, Author_ID, Category_ID)
-             VALUES (?, ?, ?, ?, ?)'
-        );
-        $stmt->execute([
-            $fields['title'],
-            $fields['isbn'],
-            $fields['year'],
-            $fields['author_id'],
-            $fields['category_id'],
-        ]);
-
-        jsonResponse(['success' => true, 'message' => 'Book added.', 'id' => (int) getDB()->lastInsertId()], 201);
-    }
-
-    if ($method === 'PUT') {
-        $data = json_decode(file_get_contents('php://input'), true);
-        $id = (int) ($data['id'] ?? 0);
-        if ($id <= 0) {
-            jsonResponse(['success' => false, 'message' => 'Invalid book ID.'], 400);
-        }
-
-        $fields = validateBookInput($data);
-        $stmt = getDB()->prepare(
-            'UPDATE book SET Title = ?, ISBN = ?, Publication_Year = ?, Author_ID = ?, Category_ID = ?
-             WHERE Book_ID = ?'
-        );
-        $stmt->execute([
-            $fields['title'],
-            $fields['isbn'],
-            $fields['year'],
-            $fields['author_id'],
-            $fields['category_id'],
-            $id,
-        ]);
-
-        if ($stmt->rowCount() === 0) {
-            jsonResponse(['success' => false, 'message' => 'Book not found.'], 404);
-        }
-
-        jsonResponse(['success' => true, 'message' => 'Book updated.']);
-    }
-
-    if ($method === 'DELETE') {
-        $id = (int) ($_GET['id'] ?? 0);
-        if ($id <= 0) {
-            jsonResponse(['success' => false, 'message' => 'Invalid book ID.'], 400);
-        }
-
-        $stmt = getDB()->prepare('DELETE FROM book WHERE Book_ID = ?');
-        $stmt->execute([$id]);
-
-        if ($stmt->rowCount() === 0) {
-            jsonResponse(['success' => false, 'message' => 'Book not found.'], 404);
-        }
-
-        jsonResponse(['success' => true, 'message' => 'Book deleted.']);
-    }
-
-    jsonResponse(['success' => false, 'message' => 'Invalid request method.'], 405);
-} catch (PDOException $e) {
-    if ($e->getCode() == 23000) {
-        jsonResponse(['success' => false, 'message' => 'ISBN already exists.'], 409);
-    }
-    jsonResponse(['success' => false, 'message' => 'Database error. Import blockshelf_db.sql first.'], 500);
+if (!isset($_SESSION['member_id']) || $_SESSION['role'] != 'Admin') {
+    header("Location: login.php");
+    exit();
 }
 
-function validateBookInput(array $data): array
-{
-    $title = trim($data['title'] ?? '');
-    $isbn = trim($data['isbn'] ?? '');
-    $year = trim((string) ($data['publication_year'] ?? ''));
-    $authorId = (int) ($data['author_id'] ?? 0);
-    $categoryId = (int) ($data['category_id'] ?? 0);
+/* ADD BOOK */
+if (isset($_POST['add_book'])) {
 
-    if ($title === '' || $authorId <= 0 || $categoryId <= 0) {
-        jsonResponse(['success' => false, 'message' => 'Title, author, and category are required.'], 400);
-    }
+    $title = $_POST['title'];
+    $isbn = $_POST['isbn'];
+    $year = $_POST['year'];
+    $author = $_POST['author'];
+    $category = $_POST['category'];
 
-    return [
-        'title' => $title,
-        'isbn' => $isbn !== '' ? $isbn : null,
-        'year' => $year !== '' ? $year : null,
-        'author_id' => $authorId,
-        'category_id' => $categoryId,
-    ];
+    $sql = "INSERT INTO Book (Title, ISBN, Publication_Year, Author_ID, Category_ID)
+            VALUES ('$title', '$isbn', '$year', '$author', '$category')";
+
+    mysqli_query($conn, $sql);
+    header("Location: books.php");
+    exit();
 }
 
-function normalizeBook(array $row): array
-{
-    return [
-        'id' => (int) $row['Book_ID'],
-        'title' => $row['Title'],
-        'isbn' => $row['ISBN'],
-        'publication_year' => $row['Publication_Year'],
-        'author_id' => (int) $row['Author_ID'],
-        'category_id' => (int) $row['Category_ID'],
-        'author' => $row['Author_Name'],
-        'category' => $row['Category_Name'],
-    ];
+/* DELETE BOOK */
+if (isset($_GET['delete'])) {
+    $id = $_GET['delete'];
+    mysqli_query($conn, "DELETE FROM Book WHERE Book_ID=$id");
+    header("Location: books.php");
+    exit();
 }
+
+/* FETCH BOOKS */
+$books = mysqli_query($conn, "
+SELECT b.*, a.Author_Name, c.Category_Name
+FROM Book b
+JOIN Author a ON b.Author_ID = a.Author_ID
+JOIN Category c ON b.Category_ID = c.Category_ID
+");
+
+/* DROPDOWNS */
+$authors = mysqli_query($conn, "SELECT * FROM Author");
+$categories = mysqli_query($conn, "SELECT * FROM Category");
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Books</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="card">
+
+<h2>Add Book (Admin Only)</h2>
+
+<form method="POST">
+
+<input type="text" name="title" placeholder="Book Title" required>
+<input type="text" name="isbn" placeholder="ISBN">
+<input type="number" name="year" placeholder="Publication Year">
+
+<select name="author" required>
+<option value="">Select Author</option>
+<?php while($a = mysqli_fetch_assoc($authors)) { ?>
+<option value="<?php echo $a['Author_ID']; ?>">
+<?php echo $a['Author_Name']; ?>
+</option>
+<?php } ?>
+</select>
+
+<select name="category" required>
+<option value="">Select Category</option>
+<?php while($c = mysqli_fetch_assoc($categories)) { ?>
+<option value="<?php echo $c['Category_ID']; ?>">
+<?php echo $c['Category_Name']; ?>
+</option>
+<?php } ?>
+</select>
+
+<button type="submit" name="add_book">Add Book</button>
+
+</form>
+
+</div>
+
+<hr>
+
+<h2>All Books</h2>
+
+<table border="1" width="100%">
+<tr>
+<th>ID</th>
+<th>Title</th>
+<th>ISBN</th>
+<th>Year</th>
+<th>Author</th>
+<th>Category</th>
+<th>Action</th>
+</tr>
+
+<?php while($b = mysqli_fetch_assoc($books)) { ?>
+<tr>
+<td><?php echo $b['Book_ID']; ?></td>
+<td><?php echo $b['Title']; ?></td>
+<td><?php echo $b['ISBN']; ?></td>
+<td><?php echo $b['Publication_Year']; ?></td>
+<td><?php echo $b['Author_Name']; ?></td>
+<td><?php echo $b['Category_Name']; ?></td>
+<td>
+<a href="books.php?delete=<?php echo $b['Book_ID']; ?>">Delete</a>
+</td>
+</tr>
+<?php } ?>
+
+</table>
+
+<br>
+<a href="logout.php">Logout</a>
+
+</body>
+</html>
